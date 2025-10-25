@@ -42,14 +42,14 @@ def load_cifar10(data_dir):
 # -------------------------
 # Preprocessing helpers
 # -------------------------
-def preprocess(X, scale=True, subtract_mean=True):
+def preprocess(x, scale=True, subtract_mean=True):
     # Input X: numpy array shape (N, 3072), dtype uint8
-    X = X.astype(np.float32);
+    x = x.astype(np.float32);
     if scale:
-        X /= 255.0;
+        x /= 255.0;
     if subtract_mean:
-        X -= X.mean(axis=0, keepdims=True);
-    return X;
+        x -= x.mean(axis=0, keepdims=True);
+    return x;
 
 # -------------------------
 # k-NN with batch distance computation (efficient)
@@ -81,13 +81,13 @@ def compute_distances_chunked(X_test, X_train, chunk_size=200):
         results.append((start, end, dists.numpy()))
     return results
 
-def knn_predict(X_train, y_train, X_test, k=1, chunk_size=200):
+def knn_predict(x_train, y_train, x_test, k=1, chunk_size=200):
     """
     k-NN prediction using squared Euclidean distances, computed chunked.
     Returns predicted labels array of length N_test.
     """
-    results = compute_distances_chunked(X_test, X_train, chunk_size=chunk_size)
-    N_test = X_test.shape[0]
+    results = compute_distances_chunked(x_test, x_train, chunk_size=chunk_size)
+    N_test = x_test.shape[0]
     y_pred = np.empty(N_test, dtype=np.int64)
     for start, end, dists in results:
         # dists shape (B, N_train)
@@ -123,15 +123,15 @@ def knn_predict(X_train, y_train, X_test, k=1, chunk_size=200):
 # -------------------------
 # Nearest centroid classifier
 # -------------------------
-def nearest_centroid_predict(X_train, y_train, X_test):
+def nearest_centroid_predict(x_train, y_train, x_test):
     # compute centroids
     classes = np.unique(y_train)
-    D = X_train.shape[1]
+    D = x_train.shape[1]
     centroids = np.zeros((len(classes), D), dtype=np.float32)
     for i, c in enumerate(classes):
-        centroids[i] = X_train[y_train == c].mean(axis=0)
+        centroids[i] = x_train[y_train == c].mean(axis=0)
     # distances: use efficient formula with torch or numpy
-    Xt = torch.from_numpy(X_test)  # T x D
+    Xt = torch.from_numpy(x_test)  # T x D
     C = torch.from_numpy(centroids)  # num_classes x D
     # compute: ||x||^2 + ||c||^2 - 2 x c^T
     x_sq = (Xt * Xt).sum(dim=1).unsqueeze(1)  # T x 1
@@ -155,53 +155,53 @@ def main():
     args = parser.parse_args()
 
     print("Loading CIFAR-10 from", args.data_dir)
-    X_train, y_train, X_test, y_test = load_cifar10(args.data_dir)
-    print("Original shapes:", X_train.shape, y_train.shape, X_test.shape, y_test.shape)
+    x_train, y_train, x_test, y_test = load_cifar10(args.data_dir)
+    print("Original shapes:", x_train.shape, y_train.shape, x_test.shape, y_test.shape)
 
     # Optionally subsample for speed (you can set train_samples=50000/test_samples=10000 to use all)
-    if args.train_samples < X_train.shape[0]:
-        idx = np.random.choice(X_train.shape[0], args.train_samples, replace=False)
-        X_train = X_train[idx]
+    if args.train_samples < x_train.shape[0]:
+        idx = np.random.choice(x_train.shape[0], args.train_samples, replace=False)
+        x_train = x_train[idx]
         y_train = y_train[idx]
-    if args.test_samples < X_test.shape[0]:
-        idx = np.random.choice(X_test.shape[0], args.test_samples, replace=False)
-        X_test = X_test[idx]
+    if args.test_samples < x_test.shape[0]:
+        idx = np.random.choice(x_test.shape[0], args.test_samples, replace=False)
+        x_test = x_test[idx]
         y_test = y_test[idx]
 
     # Preprocess (float, scale to [0,1], zero-mean)
-    X_train = preprocess(X_train, scale=True, subtract_mean=True)
-    X_test = preprocess(X_test, scale=True, subtract_mean=True)
+    x_train = preprocess(x_train, scale=True, subtract_mean=True)
+    x_test = preprocess(x_test, scale=True, subtract_mean=True)
 
     # Optionally PCA
     if args.pca:
         print(f"Applying PCA -> {args.pca_dim} dims (this may take a bit)...")
         pca = PCA(n_components=args.pca_dim, svd_solver='randomized', whiten=False)
-        X_train = pca.fit_transform(X_train)
-        X_test = pca.transform(X_test)
-        print("After PCA shapes:", X_train.shape, X_test.shape)
+        x_train = pca.fit_transform(x_train)
+        x_test = pca.transform(x_test)
+        print("After PCA shapes:", x_train.shape, x_test.shape)
     else:
-        print("No PCA. Using raw pixel vectors (shape per sample = {})".format(X_train.shape[1]))
+        print("No PCA. Using raw pixel vectors (shape per sample = {})".format(x_train.shape[1]))
 
     # Nearest centroid
     print("Computing nearest-centroid predictions...")
-    y_centroid = nearest_centroid_predict(X_train, y_train, X_test)
+    y_centroid = nearest_centroid_predict(x_train, y_train, x_test)
     acc_centroid = accuracy_score(y_test, y_centroid)
     print(f"Nearest-centroid accuracy: {acc_centroid*100:.2f}%")
 
     # 1-NN
     print("Computing 1-NN predictions (chunk_size={})...".format(args.chunk_size))
-    y_knn1 = knn_predict(X_train, y_train, X_test, k=1, chunk_size=args.chunk_size)
+    y_knn1 = knn_predict(x_train, y_train, x_test, k=1, chunk_size=args.chunk_size)
     acc_knn1 = accuracy_score(y_test, y_knn1)
     print(f"1-NN accuracy: {acc_knn1*100:.2f}%")
 
     # 3-NN
     print("Computing 3-NN predictions...")
-    y_knn3 = knn_predict(X_train, y_train, X_test, k=3, chunk_size=args.chunk_size)
+    y_knn3 = knn_predict(x_train, y_train, x_test, k=3, chunk_size=args.chunk_size)
     acc_knn3 = accuracy_score(y_test, y_knn3)
     print(f"3-NN accuracy: {acc_knn3*100:.2f}%")
 
     # Print a small summary
-    print("\nSummary (on {} train, {} test):".format(X_train.shape[0], X_test.shape[0]))
+    print("\nSummary (on {} train, {} test):".format(x_train.shape[0], x_test.shape[0]))
     print(f"Nearest-centroid: {acc_centroid*100:.2f}%")
     print(f"1-NN:             {acc_knn1*100:.2f}%")
     print(f"3-NN:             {acc_knn3*100:.2f}%")
