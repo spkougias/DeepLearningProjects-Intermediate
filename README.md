@@ -1,6 +1,6 @@
 # DeepLearningProjects-Intermediate
 
-Dataset chosen: cifar10, downloaded python version. Contains five batches of training data (10000*32*32*3) and one for testing.
+Dataset chosen: cifar10, downloaded python version. Contains five batches of training data and one for testing.
 A brief explanation follows:
   
     "The CIFAR-10 dataset
