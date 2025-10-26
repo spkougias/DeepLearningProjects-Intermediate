@@ -54,7 +54,7 @@ def preprocess(x, scale=True, subtract_mean=True):
 # -------------------------
 # k-NN with batch distance computation (efficient)
 # -------------------------
-def compute_distances_chunked(X_test, X_train, chunk_size=200):
+def compute_distances_chunked(x_test, x_train, chunk_size=200):
     """
     Compute squared Euclidean distances between X_test and X_train in chunks.
     Returns a generator of (start_idx, end_idx, distances_chunk) where
@@ -62,8 +62,8 @@ def compute_distances_chunked(X_test, X_train, chunk_size=200):
     Use squared distances: monotonic with Euclidean distance.
     """
     # Convert to torch tensors on CPU (float32)
-    Xt = torch.from_numpy(X_test)  # shape T x D
-    Xr = torch.from_numpy(X_train)  # shape N x D
+    Xt = torch.from_numpy(x_test)  # shape T x D
+    Xr = torch.from_numpy(x_train)  # shape N x D
 
     # Precompute train norms
     train_sq = (Xr * Xr).sum(dim=1)  # (N,)
