@@ -3,33 +3,36 @@
 import os
 import pickle
 import argparse
-from collections import Counter
-
 import numpy as np
 import torch
+import matplotlib.pyplot as plt
+
+from collections import Counter
 from sklearn.decomposition import PCA
 from sklearn.metrics import confusion_matrix, accuracy_score
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 #Load dataset
 def load_cifar10_batch(file_path):
+    
     with open(file_path, 'rb') as f:
-        d = pickle.load(f, encoding='bytes');
-        data = d[b'data'];  # uint8 (N, 3072)
-        labels = d[b'labels']; # list length N
-    return data, labels
+        temp_data = pickle.load(f, encoding='bytes');
+        images = temp_data[b'data'];  # uint8 (N, 3072)
+        labels = temp_data[b'labels']; # list length N
+    return images, labels
 
 #Load data_batch_1..5 as train, test_batch as test
 def load_cifar10(data_dir):
     
     x_train_list = [];
     y_train_list = [];
+    
     for i in range(1, 6):
         batch_path = os.path.join(data_dir, f'data_batch_{i}');
         images, labels = load_cifar10_batch(batch_path);
         x_train_list.append(images);
         y_train_list.extend(labels);
+        
     x_train = np.concatenate(x_train_list, axis=0);  # (50000, 3072)
     y_train = np.array(y_train_list, dtype=np.int64);
 
@@ -39,9 +42,7 @@ def load_cifar10(data_dir):
 
     return x_train, y_train, x_test, y_test;
 
-# -------------------------
-# Preprocessing helpers
-# -------------------------
+
 def preprocess(x, scale=True, subtract_mean=True):
     # Input X: numpy array shape (N, 3072), dtype uint8
     x = x.astype(np.float32);
