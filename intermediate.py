@@ -1,4 +1,4 @@
-#Run: python main.py --data_dir ./cifar-10-batches-py
+#Run: python intermediate.py --data_dir ./cifar-10-batches-py (+ other options at the start of main)
 import os
 import pickle
 import argparse
