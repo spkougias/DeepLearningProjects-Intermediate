@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 from collections import Counter
 from sklearn.decomposition import PCA
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import accuracy_score
 from tqdm import tqdm
 
 
@@ -235,20 +235,7 @@ def main():
     print(f"|>3-NN:             {acc_knn3*100:.2f}%");
     print("\n");
     
-    # Confusion matrix for best classifier
-    best = '1-NN' if acc_knn1 >= max(acc_knn3, acc_centroid) else ('3-NN' if acc_knn3 >= max(acc_knn1, acc_centroid) else 'centroid');
-    print("Best classifier:", best);
 
-    if best == '1-NN':
-        best_classifier = predict_knn1;
-    elif best == '3-NN':
-        best_classifier = predict_knn3;
-    else:
-        best_classifier = predict_centroid;
-
-    cm = confusion_matrix(label_test, best_classifier);
-    print("Confusion matrix (rows=true, cols=predicted):");
-    print(cm);
     
-if __name__ == '__intermediate__':
+if __name__ == '__main__':
     main();
