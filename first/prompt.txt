@@ -1,0 +1,23 @@
+I have an assignment on Deep learning and Neural Networks.
+I need to make a neural network, using pytorch and any other needed libraries.
+I have the 2070 GPU and want to use it to speed up the process.
+The data set is cifar-10 which I have already downloaded, although you can ignore this if it works better.
+I have made a version of the intermediate part of the assignment.
+
+Include: 
+1. simple MLP
+2. complex MLP
+3. simple CNN
+4. complex CNN
+5. transfer learning
+6. A script for plotting results and testing
+7. Optional data manipulation to add more data
+8. A report on why each architecture is used what we expected to see in general terms
+
+I want one or more models for each technique as necesery.
+Include experiments with different activation functions, parameters, optimizers in your scripts.
+Keep everything in separate files.
+This assignment is meant to be an exploration of deep learning applications.
+There must be a reasoning for every architecture used and a clear process from simpler to more complex solutions.
+Explain each architecture, both theory and the python script.
+Assume I know very little about python and Neural Networks.
