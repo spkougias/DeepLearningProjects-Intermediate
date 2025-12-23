@@ -66,6 +66,7 @@ class ComplexMLP(nn.Module):
         self.fc3 = nn.Linear(512, 256)
         self.bn3 = nn.BatchNorm1d(256)
 
+        
         self.fc4 = nn.Linear(256, 10)
 
     def forward(self, x):
@@ -75,8 +76,8 @@ class ComplexMLP(nn.Module):
         
         x = self.activation(self.bn2(self.fc2(x)))
         x = self.dropout2(x)
-        
         x = self.activation(self.bn3(self.fc3(x)))
+        
         x = self.fc4(x)
         return x
 

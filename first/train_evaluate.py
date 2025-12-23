@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 def train_model(model, train_loader, val_loader, test_loader, device, epochs=10, lr=0.001, 
-                optimizer_name='adam', criterion_name='cross_entropy'):
+                optimizer_name='adam', criterion_name='hinge_loss'):
     # criterion
     match criterion_name:
         case 'cross_entropy':

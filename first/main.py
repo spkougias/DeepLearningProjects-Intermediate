@@ -13,14 +13,14 @@ def main():
     parser.add_argument('--model', type=str, default='simple_cnn', 
                         choices=['simple_mlp', 'complex_mlp', 'cnn', 'transfer'], 
                         help='Choose the architecture to train')
-    parser.add_argument('--criterion', type=str, default='cross_entropy', 
+    parser.add_argument('--criterion', type=str, default='hinge_loss', 
                         choices=['cross_entropy', 'label_smoothing', 'hinge_loss'], 
                         help='Choose the criterion used in training')
     parser.add_argument('--optimizer', type=str, default='adam', 
                         choices=['adam', 'adamw', 'sgd'], 
                         help='Choose the optimizer used in training')
     parser.add_argument('--activation', type=str, default='relu',
-                        choices=['relu', 'leaky_relu', 'sigmoid'],
+                        choices=['relu', 'leaky_relu', 'sigmoid',],
                         help='Choose the activation function')
     parser.add_argument('--epochs', type=int, default=10, help='Number of training epochs')
     parser.add_argument('--batch_size', type=int, default=64, help='Batch size')
@@ -58,7 +58,7 @@ def main():
 
     # init model
     print(f"Initializing {args.model}...")
-    model = initialize_model(args.model, args.dropout, device)
+    model = initialize_model(args.model, args.dropout, device, args.activation)
     
     history = train_model(
         model, train_loader, val_loader, test_loader, device, 
